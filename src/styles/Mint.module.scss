@@ -1,0 +1,447 @@
+.mintWrapper {
+    width: 100%;
+    margin-bottom: 50px;
+    display: grid;
+    grid-template-rows: 30% 70%;
+}
+
+.mintStarBg {
+    z-index: 1;
+    width: 100%;
+    height: auto;
+    grid-row: 1/3;
+    grid-column: 1/2;
+
+    img {
+        width: 100%;
+        height: auto;
+    }
+}
+
+.mainWrapper {
+    z-index: 2;
+    width: 100%;
+    height: auto;
+    grid-row: 1/3;
+    grid-column: 1/2;
+
+    svg {
+        width: 100%;
+        height: auto;
+    }
+}
+
+.mintHeading {
+    grid-row: 1/2;
+    grid-column: 1/2;
+    align-self: end;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    max-width: 40%;
+
+    margin-bottom: 2%;
+}
+
+.mintHeadingBig {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    svg {
+        width: 100%;
+        height: auto;
+    }
+    margin-bottom: 4%;
+    z-index: 10;
+}
+
+
+.mintHeadingSmall {
+    text-align: center;
+    width: 100%;
+    align-self: center;
+    justify-self: center;
+
+    svg {
+        width: 100%;
+        height: auto;
+    }
+}
+
+.mintHeadingSmallText {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 40px;
+
+    letter-spacing: 0.15em;
+    filter: drop-shadow( 0px 4px 3px rgba(54, 39, 100, 0.36));
+    -webkit-filter: drop-shadow( 0px 4px 3px rgba(54, 39, 100, 0.36));
+}
+
+.mintSec {
+    z-index: 3;
+    grid-row: 2/3;
+    grid-column: 1/2;
+    justify-self: center;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+}
+
+.mintedCounter {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 42px;
+    line-height: 42px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    color: #FFFFFF;
+    margin-top: 15px;
+}
+
+.textGreen {
+    color: #53DBA6;
+}
+
+.selectAmount {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background: #12071B;
+    box-shadow: 0px 4px 4px rgba(31, 15, 15, 0.25), 6px 8px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 16px;
+
+    height: fit-content;
+    align-self: center;
+    align-items: center;
+
+    width: 55%;
+    margin-top: 25px;
+
+
+    div {
+        height: fit-content;
+    }
+
+    svg {
+        width: 30%;
+        height: auto;
+        cursor: pointer;
+    }
+
+
+}
+
+.numberAmount {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 33px;
+
+    display: flex;
+    align-items: center;
+    text-align: center;
+
+    color: #8A1BCE;
+    pointer-events: none;
+
+}
+
+.mintPrice {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 172.23%;
+
+    text-align: center;
+    letter-spacing: 0.135em;
+
+    color: #A2EAF3;
+    -webkit-text-stroke: 1px #26122C;
+    margin-top: 20px;
+
+}
+
+.mintBtn {
+    width: auto;
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    cursor: pointer;
+
+    
+    &:hover {
+        .mainBtn {
+            background: #05090C;
+            
+            span {
+                background: linear-gradient(90deg, #3326C6 0%, #FA24FE 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                text-fill-color: transparent;
+    
+                -webkit-text-stroke: 1px #0A0F1D;
+            }
+        }
+
+    }
+}
+
+.mainBtn {
+    grid-row: 1/2;
+    grid-column: 1/2;
+    z-index: 3;
+    width: 100%;
+    height: 60px;
+    width: 200px;
+    margin: auto;
+    background: linear-gradient(90deg, #FDFC47 0%, #24FE41 100%);
+    border-radius: 19px;
+    border: 3px solid #0A0F1D;
+    filter: drop-shadow( 0px 0px 5px #F556F9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    span {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 600;
+        font-size: 36px;
+        line-height: 172.23%;
+        text-align: center;
+        letter-spacing: 0.135em;
+
+        color: #000101;
+        z-index: 4;
+        -webkit-text-stroke: 1px #26122C;
+        pointer-events: none;
+    }
+
+}
+
+.perWalletInfo {
+    margin-top: 10px;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 172.23%;
+
+    letter-spacing: 0.135em;
+
+    color: #B0D6EC;
+    text-align: center;
+
+    -webkit-text-stroke: 1px #26122C;
+}
+
+.mintSoon {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 40px;
+    line-height: 172.23%;
+
+    letter-spacing: 0.135em;
+
+    background: linear-gradient(90deg, #FF75C3 0%, #FFA647 20%, #FFE83F 40%, #9FFF5B 60%, #70E2FF 80%, #CD93FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+
+    -webkit-text-stroke: 1px #26122C;
+    text-align: center;
+    margin-top: 22%;
+}
+
+.mintSoldOut {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 60px;
+    line-height: 172.23%;
+
+    display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.135em;
+    background: linear-gradient(90deg, #1FA2FF 0%, #12D8FA 50%, #A6FFCB 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    margin-top: 22%;
+    text-align: center;
+}
+
+.giveawaySec {
+    &:hover {
+        .clouds {
+            filter: drop-shadow( 0px 0px 9px #FFFFFF);
+        }
+    }
+}
+
+.mintHeadingBig {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 900;
+    font-size: 63px;
+    line-height: 63px;
+    text-align: center;
+    letter-spacing: 0.09em;
+
+    background: linear-gradient(90deg, #FC00FF 0%, #00DBDE 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    -webkit-text-stroke: 6px #140C2F;
+    filter: drop-shadow(2px -1px 3px #F556F9);
+    width: 100%;
+}
+
+@media screen and (max-width: 1280px) {
+    .mintWrapper {
+        margin-bottom: 30px;
+    }
+
+    .mintedCounter {
+        font-size: 3.1vw;
+        line-height: 3.1vw;
+
+        margin-top: 1.5vw;
+    }
+
+    .selectAmount {
+        width: 13vw;
+        margin-top: 2vw;
+    
+        svg {
+            width: 4vw;
+        }
+    }
+    
+    .numberAmount {
+        font-size: 2.5vw;
+        display: flex;
+    }
+    
+    .mintPrice {
+        font-size: 1.6vw;
+        margin-top: 1.5vw;
+    
+    }
+
+    .mintBtn {
+        margin-top: 0.8vw;
+    }
+    
+    .mainBtn {
+        width: 17vw;
+        border-radius: 19px;
+        height: 5vw;
+
+    
+        span {
+            font-size: 2.7vw;
+        }
+    }
+    
+    .perWalletInfo {
+        margin-top: 0.6vw;
+        font-size: 1.6vw;
+    }
+
+    .mintSoon {
+        font-size: 3.2vw;
+        margin-top: 7vw;
+    }
+    
+    .mintSoldOut {
+        font-size: 4.5vw;
+        margin-top: 7vw;
+    }
+
+    .mintHeadingBig {
+        font-weight: 900;
+        font-size: 4.8vw;
+        line-height: 4.8vw;
+
+        -webkit-text-stroke: 0.5vw #140C2F;
+    }
+}
+
+@media screen and (max-width: 980px) {
+    .mintWrapper {
+        margin-bottom: 0px;
+    }
+
+    .mintPrice {
+        -webkit-text-stroke-width: 0;
+    }
+    .perWalletInfo {
+        -webkit-text-stroke-width: 0;
+    }
+
+    .mintBtn {
+        span {
+            -webkit-text-stroke-width: 0;
+        }
+
+        &:hover {
+            span {
+                -webkit-text-stroke-width: 0;
+            }
+        }
+    }
+
+    .mintBtn {
+        border-radius: 15px;
+        
+        .mainBtn {
+            border: 1px solid #0A0F1D;
+            span {
+                -webkit-text-stroke-width: 0;
+
+            }
+        }
+
+        &:hover {
+            .mainBtn {
+                span {
+                    -webkit-text-stroke-width: 0;
+                }
+            }
+        }
+    }
+
+    .mintSoon {
+        -webkit-text-stroke-width: 0;
+    }
+
+    .mintSoldOut {
+        -webkit-text-stroke-width: 0;
+    }
+
+    .mintHeadingBig {
+        filter: drop-shadow(1px -1px 1px #F556F9);
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .mainBtn {
+        border-radius: 8px;
+        filter: drop-shadow( 0px 0px 3px #F556F9);
+    }
+}

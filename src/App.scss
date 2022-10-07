@@ -1,0 +1,84 @@
+/* montserrat-100 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 100;
+  src: local(''),
+       url('./assets/fonts/Montserrat-Thin.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+/* montserrat-200 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 200;
+  src: local(''),
+       url('./assets/fonts/Montserrat-ExtraLight.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+/* montserrat-300 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  src: local(''),
+       url('./assets/fonts/Montserrat-Light.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+/* montserrat-regular - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: local(''),
+       url('./assets/fonts/Montserrat-Regular.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+/* montserrat-500 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  src: local(''),
+       url('./assets/fonts/Montserrat-Medium.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+/* montserrat-600 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  src: local(''),
+       url('./assets/fonts/Montserrat-SemiBold.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+/* montserrat-700 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  src: local(''),
+       url('./assets/fonts/Montserrat-Bold.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+/* montserrat-800 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 800;
+  src: local(''),
+       url('./assets/fonts/Montserrat-ExtraBold.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+/* montserrat-900 - latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 900;
+  src: local(''),
+       url('./assets/fonts/Montserrat-Black.ttf') format('truetype'), /* Safari, Android, iOS */
+}
+
+
+.app {
+  background-color: #110520;
+}
+
+.wrapper {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}

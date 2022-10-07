@@ -1,0 +1,44 @@
+.footerWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    span {
+        text-align: center;
+        color: #FFFFFF;
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 300;
+        font-size: 27px;
+        line-height: 33px;
+    }
+}
+
+.text2 {
+    margin-bottom: 15px;
+    margin-top: 3px;
+}
+
+@media screen and (max-width: 900px) {
+    .footerWrapper {
+        span {
+            font-size: 23px;
+        }
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .footerWrapper {
+        span {
+            font-size: 18px;
+        }
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .footerWrapper {
+        span {
+            font-size: 14px;
+        }
+    }
+}

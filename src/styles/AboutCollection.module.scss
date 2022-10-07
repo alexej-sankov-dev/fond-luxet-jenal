@@ -1,0 +1,207 @@
+.aboutWrapper {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    width: 100%;
+    height: 720px;
+    margin-bottom: 50px;
+}
+
+.aboutBg {
+    grid-column: 1/3;
+    grid-row: 1/2;
+    width: 100%;
+    height: 100%;
+    height: 600px;
+    align-self: end;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.aboutText {
+    grid-row: 1/2;
+    grid-column: 1/2;
+    z-index: 3;
+    margin-left: 55px;
+
+    p {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 28px;
+        line-height: 34px;
+        
+        color: #FFFFFF;
+        margin-bottom: 25px;
+        margin-top: 0;
+    }
+}
+
+.aboutImg {
+    grid-row: 1/2;
+    grid-column: 2/3;
+    z-index: 1;
+    align-self: end;
+    overflow: hidden;
+}
+
+.cutLine {
+    grid-column: 1/3;
+    grid-row: 1/2;
+    width: 100%;
+    height: 100%;
+    height: 600px;
+    align-self: end;
+    overflow: hidden;
+    z-index: 2;
+
+
+}
+
+.textBlue {
+    color: #33F6F6;
+}
+
+.textGreen {
+    color: #3EE3BC;
+}
+
+.textYellow {
+    color: #E2DC49;
+}
+
+.textRed {
+    color: #FF52CF;
+}
+
+.aboutHeading {
+    margin-bottom: 21px;
+
+    span {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 600;
+        font-size: 80px;
+        line-height: 90px;
+    
+    
+        background: linear-gradient(90deg, #FDFC47 0%, #24FE41 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+    
+        -webkit-text-stroke: 3px #4D2377;
+
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .aboutWrapper {
+        display: grid;
+        grid-template-columns: 3fr 2fr;
+        width: 100%;
+        height: auto;
+        margin-bottom: 50px;
+    }
+    
+    .aboutBg {
+        height: 100%;
+        height: auto;
+
+        svg {
+            width: 100%;
+            height: auto;
+        }
+    }
+    
+    .aboutBg {
+        height: 100%;
+        height: auto;
+
+        svg {
+            width: 100%;
+            height: auto;
+        }
+    }
+    
+    .aboutText {
+        margin-left: 4vw;
+        align-self: center;
+        margin-bottom: 5vw;
+    
+        p {
+            font-size: 2.2vw;
+            line-height: 2.7vw;
+            margin-bottom: 2vw;
+        }
+    }
+    
+    .aboutImg {
+        img {
+            width: 100%;
+            height: auto;
+            max-width: 31vw;
+        }
+    }
+    
+    .cutLine {
+        height: 100%;
+        height: auto;
+
+        svg {
+            width: 100%;
+            height: auto;
+        }
+    }
+    
+    .aboutHeading {
+        margin-bottom: 1.8vw;
+        span {
+            font-size: 6.3vw;
+            line-height: 7vw; 
+            -webkit-text-stroke: 3px #4D2377;
+        }
+    }
+
+    .lastP {
+        margin-bottom: 0;
+    }
+}
+
+
+@media screen and (max-width: 1100px) {
+    .aboutHeading {
+        span {
+            -webkit-text-stroke: 2px #4D2377;
+        }
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .aboutHeading {
+        span {
+            -webkit-text-stroke: 2px #4D2377;
+        }
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .aboutWrapper {
+        margin-bottom: 30px;
+    }
+}
+
+@media screen and (max-width: 650px) {
+    .aboutHeading {
+        span {
+            -webkit-text-stroke: 1px #4D2377;
+        }
+    }
+}
+
+
+@media screen and (max-width: 450px) {
+    .aboutWrapper {
+        margin-bottom: 20px;
+    }
+}

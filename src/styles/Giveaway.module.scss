@@ -1,0 +1,353 @@
+.giveawayWrapper {
+    width: 100%;
+    padding-top: 100px;
+}
+
+.giveaway {
+    background: rgba(0, 0, 0, 0.78);
+    border: 4px solid #7A3590;
+    box-shadow: -5px 5px 12px rgba(168, 17, 218, 0.31), 4px -5px 12px rgba(168, 17, 218, 0.31);
+    backdrop-filter: blur(21.5px);
+    border-radius: 25px;
+    
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    
+    height: 637px;
+    margin-left: 150px;
+    margin-right: 150px;
+    margin-bottom: 190px;
+    
+}
+
+.textBg {
+    grid-column: 1/2;
+    grid-row: 1/2;
+    z-index: 1;
+}
+
+.text {
+    z-index: 2;
+    grid-column: 1/2;
+    grid-row: 1/2;
+    margin-left: 39px;
+    margin-top: 62px;
+}
+
+.text1 {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 32px;
+    line-height: 35px;
+    letter-spacing: 0.05em;
+    color: #160202;
+    -webkit-text-stroke: 1px #5C2AC5;
+    margin-right: 95px;
+    margin-bottom: 55px;
+
+    span {
+        height: 35px;
+        margin-left: 5px;
+        margin-right: 5px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        top: 5px;
+
+        svg {
+            height: 35px;
+        }
+    }
+}
+
+.text2 {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 29px;
+    line-height: 32px;
+    color: transparent;
+    -webkit-text-stroke: 1px #571667;
+
+    span {
+        display: inline-block;
+        margin-left: 20px;
+        position: relative;
+        top: 10px;
+    }
+
+    margin-bottom: 55px;
+}
+
+.text3 {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 32px;
+    line-height: 110.9%;
+
+    letter-spacing: 0.05em;
+
+    color: #160202;
+    -webkit-text-stroke: 1px #5C2AC5;
+}
+
+.heading {
+    grid-column: 1/3;
+    grid-row: 1/2;
+    z-index: 3;
+    justify-self: center;
+    position: relative;
+    top: -46px;
+    width: 410px;
+    height: 92px;
+
+    background: #310E69;
+    box-shadow: -7px -2px 4px rgba(72, 152, 226, 0.79), 3px 1px 4px #2DFDD7;
+    border-radius: 11px;
+    display: flex;
+
+    span {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 600;
+        font-size: 54px;
+        line-height: 90px;
+        width: 100%;
+        text-align: center;
+
+        
+        letter-spacing: 0.06em;
+
+        color: #FFFFFF;
+
+        -webkit-text-stroke: 2px #C800DA;
+    }
+}
+
+.form {
+    grid-column: 2/3;
+    grid-row: 1/2;
+    margin-top: 140px;
+    color: #fff;
+}
+
+.inputLabel {
+    display: block;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 24px;
+
+
+    color: #FFFFFF;
+}
+
+.input {
+    margin-bottom: 90px;
+    width: 380px;
+    outline: none;
+    background: transparent;
+    color: #fff;
+    border-width: 0 0 1px 0;
+    border-color: #C800DA;
+
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 24px;
+
+    margin-top: 30px;
+}
+
+.submitBtn {
+    display: block;
+    width: 380px;
+    background-color: #481B93;
+    border-radius: 17px;
+    outline: none;
+    border-width: 0;
+    height: 57px;
+    cursor: pointer;
+
+    span {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 600;
+        font-size: 27px;
+        line-height: 33px;
+        text-align: center;
+
+        color: #E8DDF9;
+    }
+
+    &:hover {
+        background: #63B900;
+        backdrop-filter: blur(6px);
+        border-radius: 17px;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+
+    .giveaway {
+        border: 0.3vw solid #7A3590;
+        border-radius: 2vw;
+
+        height: auto;
+        margin-left: 11vw;
+        margin-right: 11vw;
+        margin-bottom: 16vw;
+    }
+    
+    .textBg {
+        height: auto;
+        width: 100%;
+
+        svg {
+            height: 100%;
+            width: 100%;
+            left: 0;
+            position: relative;
+        }
+    }
+    
+    .text {
+        align-self: center;
+        justify-self: center;
+        margin: 0;
+        width: 90%;
+    }
+    
+    .text1 {
+        font-size: 2.5vw;
+        line-height: 2.7vw;
+        letter-spacing: 0.05em;
+        margin-right: 0;
+        width: 90%;
+        margin-bottom: 4.2vw;
+    
+        span {
+            height: 2.8vw;
+            margin-left: 0.5vw;
+            margin-right: 0.5vw;
+            top: 0.2vw;
+    
+            svg {
+                height: 2.8vw;
+                width: auto;
+            }
+        }
+    }
+    
+    .text2 {
+        font-size: 2.5vw;
+        line-height: 2.8vw;
+    
+        span {
+            margin-left: 1.8vw;
+            top: 0.6vw;
+
+            svg {
+                height: 3vw;
+                width: auto;
+            }
+        }
+    
+        margin-bottom: 4.2vw;
+    }
+    
+    .text3 {
+        font-size: 2.5vw;
+        line-height: 2.7vw;
+        letter-spacing: 0.05em;
+    }
+    
+    .heading {
+        top: -4vw;
+        height: 7.5vw;
+        width: 42%;
+    
+        border-radius: 11px;
+    
+        span {
+            font-size: 4vw;
+            line-height: 7vw;    
+            letter-spacing: 0.06em;
+        }
+    }
+    
+    .form {
+        margin-top: 0;
+        align-self: center;
+        justify-self: center;
+        width: 80%;
+    }
+    
+    .inputLabel {
+        font-size: 1.6vw;
+        line-height: 1.8vw;
+    }
+    
+    .input {
+        margin-bottom: 7vw;
+        width: 100%;
+        font-size: 1.6vw;
+        line-height: 1.8vw;
+    
+        margin-top: 2.3vw;
+    }
+    
+    .submitBtn {
+        width: 100%;
+        border-radius: 17px;
+        height: 4.5vw;
+    
+        span {
+            font-size: 2vw;
+            line-height: 2vw;
+        }
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .giveawayWrapper {
+        padding-top: 34px;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .giveawayWrapper {
+        padding-top: 30px;
+    }
+    .giveaway {
+        border: 1px solid #7A3590;
+    }
+    
+    .text1 {
+        -webkit-text-stroke-width: 0px;
+
+    }
+    
+    .text2 {
+        color: #571667;
+        -webkit-text-stroke: 0px #571667;
+    }
+    
+    .text3 {
+        -webkit-text-stroke-width: 0px;
+    }
+    
+    .heading {
+        box-shadow: -3px -1px 2px rgba(72, 152, 226, 0.79), 1px 1px 2px #2DFDD7;
+
+        span {
+            -webkit-text-stroke: 1px #C800DA;
+        }
+
+    }
+}
