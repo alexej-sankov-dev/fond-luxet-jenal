@@ -77,7 +77,7 @@
 
         grid-row: 1/2;
         grid-column: 1/2;
-        z-index: 1;
+        z-index: 2;
 
     }
 
@@ -104,6 +104,8 @@
     height: 100%;
     grid-column: 1/2;
     grid-row: 1/2;
+    z-index: 1;
+
     
     button { 
         border: 3px solid rgba(53, 74, 183, 0.1);
@@ -163,18 +165,35 @@
     }
     
     .conntectBtn {
-        width: 16vw;
-        height: auto;
+        width: 16.5vw;
+        height: 4.5vw;
+        justify-self: start;
+        align-self: center;
         
         span {
-            font-size: 1.4vw;
-            line-height: 2.4vw;
-            padding: 0.8vw 0.3vw 0.8vw 0.3vw;
+            font-size: 1.3vw;
+            line-height: unset;
+            padding: 0 0.5vw 0 0.5vw;
      
         }
     
         margin-right: 3.5vw;
     
+    }
+
+    .conntectBtnInner {
+        width: 16.5vw;
+        height: 4.5vw;
+        justify-self: start;
+        align-self: start;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        button {
+            width: 16.5vw;
+            height: 4.5vw;
+        }
     }
         
     .linkItem {

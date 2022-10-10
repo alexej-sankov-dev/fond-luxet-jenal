@@ -14,7 +14,7 @@ function App() {
     <div className='app'>
       <div className='wrapper'>
         <Header accounts={accounts} setAccounts={setAccounts} />
-        <Home />
+        <Home accounts={accounts} />
         <Footer />
       </div>
     </div>

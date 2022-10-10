@@ -1,7 +1,20 @@
+import axios from 'axios'
 import React from 'react'
 import styles from '../styles/Giveaway.module.scss'
 
 const Giveaway = (props) => {
+
+  const handleSubmitForm = (event) => {
+    event.preventDefault();
+    axios.post('https://formkeep.com/f/2a68b8e1bb8a', event.target, {
+        headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+        }
+    }).then(response => {
+        document.getElementById("giveway-form").reset();
+    })
+  }
   return (
     <div ref={props.giveawayRef} className={styles.giveawayWrapper} id='giveaway'>
         <div className={styles.giveaway}>
@@ -88,11 +101,14 @@ const Giveaway = (props) => {
                 </svg>
             </div>
             <div className={styles.form}>
-                <form action="">
-                    <label className={styles.inputLabel} for="fname">Wallet address</label>
-                    <input className={styles.input} type="text" id="fname" name="fname" />
-                    <label className={styles.inputLabel} for="lname">E-mail</label>
-                    <input className={styles.input} type="text" id="lname" name="lname" />
+                <form 
+                    id='giveway-form'
+                    onSubmit={handleSubmitForm}
+                >
+                    <label className={styles.inputLabel} for="wallet">Wallet address</label>
+                    <input className={styles.input} type="text" id="wallet" name="wallet" />
+                    <label className={styles.inputLabel} for="email">E-mail</label>
+                    <input className={styles.input} type="text" id="email" name="email" />
                     <button className={styles.submitBtn} type="submit">
                         <span>Send</span>
                     </button>

@@ -11,19 +11,21 @@ import NFT7 from '../assets/NFT7.png'
 
 const Art = () => {
   const settings = {
-    className: "slider variable-width",
+    // className: "slider variable-width",
     dots: false,
+    arrows: false,
     infinite: true,
     slidesToShow: 1,
     slidesToScroll: 1,
+    //speed: 3500,
+    // useTransform: false,
+    variableWidth: true,  
+    
     pauseOnHover: false,
     autoplay: true,
-    autoplaySpeed: 0,
-    speed: 3500,
+    speed: 1000,
+    autoplaySpeed: 3000,
     cssEase: "linear",
-    arrows: false,
-    useTransform: false,
-    variableWidth: true,    
   };
 
   return (

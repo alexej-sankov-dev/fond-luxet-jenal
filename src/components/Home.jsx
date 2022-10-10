@@ -7,12 +7,12 @@ import Giveaway from './Giveaway'
 import Mint from './Mint'
 import Roadmap from './Roadmap'
 
-const Home = () => {
+const Home = ({accounts}) => {
   const giveawayRef = useRef(null)
 
   return (
     <div>
-        <Mint giveawayRef={giveawayRef} />
+        <Mint giveawayRef={giveawayRef} accounts={accounts} />
         <AboutCollection />
         <Art />
         <Giveaway giveawayRef={giveawayRef} />
