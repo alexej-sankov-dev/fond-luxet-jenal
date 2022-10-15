@@ -8,12 +8,12 @@ import MintDialog from './MintDialog'
 const fondLuxetAdress = window.CONTRACT
 
 const Mint = (props) => {
-  const [ mintState, setMintState ] = React.useState(localStorage.getItem('mintState') !== null ? localStorage.getItem('mintState') : window.DEFAULT_MINT_STATE)
+  const [ mintState, setMintState ] = React.useState(window.DEFAULT_MINT_STATE)
   const [ mintAmount, setMintAmount ] = React.useState(1)
 
   const [ amountMinted, setAmountMinted ] = React.useState('?')
 
-  const [ freeMint, setFreeMint ] = React.useState(localStorage.getItem('freeMint') !== null ? localStorage.getItem('freeMint') : window.DEFAULT_FREE_MINT )
+  const [ freeMint, setFreeMint ] = React.useState(window.DEFAULT_FREE_MINT )
 
   const mintPrice = window.MINT_PRICE_IN_GWEI
 
@@ -26,63 +26,64 @@ const Mint = (props) => {
 
 
   async function handleMint() {
+    if (mintState !== 'stopped') {
+        if (props.accounts !== null && props.accounts !== '' && props.accounts !== 'null') {
+            if (window.ethereum) {
+                const provider = new ethers.providers.Web3Provider(window.ethereum)
+                const signer = provider.getSigner()
+                const contract = new ethers.Contract(
+                        fondLuxetAdress,
+                        fondLuxet.abi,
+                        signer
+                )
 
-    if (props.accounts !== null && props.accounts !== '' && props.accounts !== 'null') {
-        if (window.ethereum) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const signer = provider.getSigner()
-            const contract = new ethers.Contract(
-                    fondLuxetAdress,
-                    fondLuxet.abi,
-                    signer
-            )
+                var responseFreeMint = null
+                var responseBalance = null
+                var publicCostMint = null
+                var responseMaxFree = null
+                var responseNumFreeMints = null
 
-            var responseFreeMint = null
-            var responseBalance = null
-            var publicCostMint = null
-            var responseMaxFree = null
-            var responseNumFreeMints = null
+                try {
+                    responseFreeMint = await contract.freeNFTAlreadyMinted()
+                    responseBalance = await contract.balanceOf(props.accounts)
+                    publicCostMint = await contract.publicCost()
+                    publicCostMint = publicCostMint.toNumber()
+                    responseMaxFree = await contract.maxFreePerWallet()
+                    responseNumFreeMints = await contract.numFreeMints()
+                } catch (err) {
 
-            try {
-                responseFreeMint = await contract.freeNFTAlreadyMinted()
-                responseBalance = await contract.balanceOf(props.accounts)
-                publicCostMint = await contract.publicCost()
-                publicCostMint = publicCostMint.toNumber()
-                responseMaxFree = await contract.maxFreePerWallet()
-                responseNumFreeMints = await contract.numFreeMints()
-            } catch (err) {
+                }
 
+                
+                var options = null
+                
+                if ( (responseFreeMint.toNumber() < responseNumFreeMints.toNumber()  && responseBalance.toNumber() < responseMaxFree.toNumber()) ) {
+                    setFreeMint('true')
+                    options = {value: ethers.utils.parseEther('0')}
+                } else {
+                    setFreeMint('false')
+                    const cost = ethers.utils.formatUnits(mintPrice * mintAmount, 'gwei')
+                    options = {value: ethers.utils.parseEther(cost.toString())}
+                }
+                setBalance(responseBalance.toNumber())
+
+                try {
+                    await contract.mint(BigNumber.from(mintAmount), options)
+                    setMintMsg('Successfully Minted')
+                    setOpenDialog(true)
+                    setBalance(balance+mintAmount)
+                    setMintAmount(1)
+                    setFreeMint('false')
+                } catch (err) {
+                    let errmsg = 'Minting Error.'
+                    setMintMsg(errmsg)
+                    setOpenDialog(true)
+                }
             }
-
-            
-            var options = null
-            
-            if ( (responseFreeMint.toNumber() < responseNumFreeMints.toNumber()  && responseBalance.toNumber() < responseMaxFree.toNumber()) ) {
-                setFreeMint('true')
-                options = {value: ethers.utils.parseEther('0')}
-            } else {
-                setFreeMint('false')
-                const cost = ethers.utils.formatUnits(mintPrice * mintAmount, 'gwei')
-                options = {value: ethers.utils.parseEther(cost.toString())}
-            }
-            setBalance(responseBalance.toNumber())
-
-            try {
-                await contract.mint(BigNumber.from(mintAmount), options)
-                setMintMsg('Successfully Minted')
-                setOpenDialog(true)
-                setBalance(balance+mintAmount)
-                setMintAmount(1)
-                setFreeMint('false')
-            } catch (err) {
-                let errmsg = 'Minting Error.'
-                setMintMsg(errmsg)
-                setOpenDialog(true)
-            }
-          }
-    } else {
-        setMintMsg('Connect your wallet.')
-        setOpenDialog(true)
+        } else {
+            setMintMsg('Connect your wallet.')
+            setOpenDialog(true)
+        }
     }
   }
 
@@ -116,20 +117,22 @@ const Mint = (props) => {
                 }
                 
                 try {
-                    const responseAmountMinted = await contract.totalSupply()
-                    setAmountMinted(responseAmountMinted.toNumber())
-                    
-                    if (responseAmountMinted.toNumber() < 8000) {
-                        const responseStatus = await contract.publicMintStart()
-                        if (responseStatus === true) {
-                            setMintState('mint')
+                    if (mintState !== 'stopped') {
+                        const responseAmountMinted = await contract.totalSupply()
+                        setAmountMinted(responseAmountMinted.toNumber())
+                        
+                        if (responseAmountMinted.toNumber() < 8000) {
+                            const responseStatus = await contract.publicMintStart()
+                            if (responseStatus === true) {
+                                setMintState('mint')
+                            } else {
+                                setMintState('soon')
+                            }
                         } else {
-                            setMintState('soon')
+                            setMintState('soldout')
                         }
-                    } else {
-                        setMintState('soldout')
                     }
-                    
+                        
                 } catch (err) {
                     let errmsg = 'Error when fetching data.'
                     setMintMsg(errmsg)
@@ -176,7 +179,7 @@ const Mint = (props) => {
         </div>
         <div className={styles.mintSec}>
             {
-                mintState==='mint' &&
+                (mintState==='mint' || mintState==='stopped') &&
                 <>
                 <div className={styles.mintedCounter}>
                     <span>{amountMinted} / <span className={styles.textGreen}>8 000</span></span>
@@ -200,7 +203,7 @@ const Mint = (props) => {
                 </div>
                 <div className={styles.mintBtn} onClick={handleMint}>
                     <div className={styles.mainBtn}>
-                        <span>Mint</span>
+                        <span>{ mintState==='mint' ? 'Mint' : 'Stopped'}</span>
                     </div>
                 </div>
                 <div className={styles.perWalletInfo}>
