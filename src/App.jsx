@@ -9,7 +9,8 @@ import { useState } from 'react';
 
 function App() {
 
-  const [ accounts, setAccounts ] = useState([])
+  const [ accounts, setAccounts ] = useState( '' )
+
   return (
     <div className='app'>
       <div className='wrapper'>

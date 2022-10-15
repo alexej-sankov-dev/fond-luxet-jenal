@@ -5,18 +5,17 @@ import fondLuxet from '../fondLuxet.json'
 import { useEffect } from 'react'
 import MintDialog from './MintDialog'
 
-const fondLuxetAdress = '0x3701A89937C2E41F581b374fca63710E752197d2'
+const fondLuxetAdress = window.CONTRACT
 
 const Mint = (props) => {
-  const [ mintState, setMintState ] = React.useState('mint')
+  const [ mintState, setMintState ] = React.useState(localStorage.getItem('mintState') !== null ? localStorage.getItem('mintState') : window.DEFAULT_MINT_STATE)
   const [ mintAmount, setMintAmount ] = React.useState(1)
 
-  const isConnected = Boolean(props.accounts[0])
   const [ amountMinted, setAmountMinted ] = React.useState('?')
 
-  const [ freeMint, setFreeMint ] = React.useState(true)
+  const [ freeMint, setFreeMint ] = React.useState(localStorage.getItem('freeMint') !== null ? localStorage.getItem('freeMint') : window.DEFAULT_FREE_MINT )
 
-  const mintPrice = 87
+  const mintPrice = window.MINT_PRICE_IN_GWEI
 
   const scrollToGiveaway = () => props.giveawayRef.current.scrollIntoView()
 
@@ -27,9 +26,9 @@ const Mint = (props) => {
 
 
   async function handleMint() {
-    if (props.accounts[0]) {
+
+    if (props.accounts !== null && props.accounts !== '' && props.accounts !== 'null') {
         if (window.ethereum) {
-            setMintMsg('')
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const signer = provider.getSigner()
             const contract = new ethers.Contract(
@@ -38,28 +37,45 @@ const Mint = (props) => {
                     signer
             )
 
-            const responseFreeMint = await contract.freeNFTAlreadyMinted()
-            const responseBalance = await contract.balanceOf(props.accounts[0])
+            var responseFreeMint = null
+            var responseBalance = null
+            var publicCostMint = null
+            var responseMaxFree = null
+            var responseNumFreeMints = null
+
+            try {
+                responseFreeMint = await contract.freeNFTAlreadyMinted()
+                responseBalance = await contract.balanceOf(props.accounts)
+                publicCostMint = await contract.publicCost()
+                publicCostMint = publicCostMint.toNumber()
+                responseMaxFree = await contract.maxFreePerWallet()
+                responseNumFreeMints = await contract.numFreeMints()
+            } catch (err) {
+
+            }
+
             
             var options = null
             
-            if ( (responseFreeMint.toNumber() < 500 && responseBalance.toNumber() === 0) ) {
-                setFreeMint(true)
+            if ( (responseFreeMint.toNumber() < responseNumFreeMints.toNumber()  && responseBalance.toNumber() < responseMaxFree.toNumber()) ) {
+                setFreeMint('true')
                 options = {value: ethers.utils.parseEther('0')}
             } else {
-                setFreeMint(false)
-                const cost = (mintPrice * mintAmount) / 10000
+                setFreeMint('false')
+                const cost = ethers.utils.formatUnits(mintPrice * mintAmount, 'gwei')
                 options = {value: ethers.utils.parseEther(cost.toString())}
             }
-    
+            setBalance(responseBalance.toNumber())
 
             try {
-                const response = await contract.mint(BigNumber.from(mintAmount), options)
+                await contract.mint(BigNumber.from(mintAmount), options)
                 setMintMsg('Successfully Minted')
                 setOpenDialog(true)
+                setBalance(balance+mintAmount)
                 setMintAmount(1)
+                setFreeMint('false')
             } catch (err) {
-                let errmsg = 'Error'
+                let errmsg = 'Minting Error.'
                 setMintMsg(errmsg)
                 setOpenDialog(true)
             }
@@ -80,58 +96,60 @@ const Mint = (props) => {
                 fondLuxet.abi,
                 signer
             )
-
-            try {
-
-                if (props.accounts[0]) {
-                    try {
-                        const responseFreeMint = await contract.freeNFTAlreadyMinted()
-                        const responseBalance = await contract.balanceOf(props.accounts[0])
-                        setBalance(responseBalance.toNumber())
-                        if ( (responseFreeMint.toNumber() < 500 && responseBalance.toNumber() === 0) ) {
-                            setFreeMint(true)
-                        } else {
-                            setFreeMint(false)
-                        }
-                    } catch (err) {
-                        console.log('error: ', err)
-                    }
-                } else {
-                    const responseFreeMint = await contract.freeNFTAlreadyMinted()
-    
-                    if ( (responseFreeMint.toNumber()) ) {
-                        setFreeMint(true)
-                    } else {
-                        setFreeMint(false)
-                    }
-                }
-                
-                const responseAmountMinted = await contract.totalSupply()
-                setAmountMinted(responseAmountMinted.toNumber())
-                
-                if (responseAmountMinted.toNumber() < 8000) {
-                    const responseStatus = await contract.publicMintStart()
-                    if (responseStatus === true) {
-                        setMintState('mint')
-                    } else {
-                        setMintState('soon')
-                    }
-                } else {
-                    setMintState('soldout')
-                }
-
-            } catch (err) {
-                console.log('error: ', err)
-            }
-
             
+            if (props.accounts !== null && props.accounts !== '' && props.accounts !== 'null') {
+                try {
+                    const responseBalance = await contract.balanceOf(props.accounts)
+                    const responseFreeMint = await contract.freeNFTAlreadyMinted()
+                    const responseMaxFree = await contract.maxFreePerWallet()
+                    const responseNumFreeMints = await contract.numFreeMints()
+                    setBalance(responseBalance.toNumber())
+                    if ( (responseFreeMint.toNumber() < responseNumFreeMints.toNumber()  && responseBalance.toNumber() < responseMaxFree.toNumber()) ) {
+                        setFreeMint('true')
+                    } else {
+                        setFreeMint('false')
+                    }
+                } catch (err) {
+                    let errmsg = 'Error when fetching data.'
+                    setMintMsg(errmsg)
+                    setOpenDialog(true)
+                }
+                
+                try {
+                    const responseAmountMinted = await contract.totalSupply()
+                    setAmountMinted(responseAmountMinted.toNumber())
+                    
+                    if (responseAmountMinted.toNumber() < 8000) {
+                        const responseStatus = await contract.publicMintStart()
+                        if (responseStatus === true) {
+                            setMintState('mint')
+                        } else {
+                            setMintState('soon')
+                        }
+                    } else {
+                        setMintState('soldout')
+                    }
+                    
+                } catch (err) {
+                    let errmsg = 'Error when fetching data.'
+                    setMintMsg(errmsg)
+                    setOpenDialog(true)
+                }
+            }
         }
     }
     fetchMintStatus()
 
-  }, [isConnected, openDialog])
+  }, [props.accounts, openDialog])
 
-  
+  useEffect(() => {
+    localStorage.setItem('freeMint', freeMint);
+  }, [freeMint])
+
+  useEffect(() => {
+    localStorage.setItem('mintState', mintState);
+  }, [mintState])
+
 
   return (
     <div className={styles.mintWrapper}>
@@ -144,15 +162,15 @@ const Mint = (props) => {
                 <svg width="519" height="60" viewBox="0 0 519 60" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                     <linearGradient id="gradient" y1="0" y2="1">
-                    <stop stop-color="#390FDE" offset="0"/>
-                    <stop stop-color="rgba(255, 6, 245, 0.33)" offset="1"/>
+                    <stop stopColor="#390FDE" offset="0"/>
+                    <stop stopColor="rgba(255, 6, 245, 0.33)" offset="1"/>
                     </linearGradient>
                     <linearGradient id="gradient2" y1="0" y2="1">
-                    <stop stop-color="#C9D6FF" offset="0"/>
-                    <stop stop-color="#E2E2E2" offset="1"/>
+                    <stop stopColor="#C9D6FF" offset="0"/>
+                    <stop stopColor="#E2E2E2" offset="1"/>
                     </linearGradient>
                     </defs>
-                    <text x="50%" y='50%' text-anchor="middle" className={styles.mintHeadingSmallText} id="text" stroke-width="2" stroke="url(#gradient)" fill="url(#gradient2)">JENAL</text>
+                    <text x="50%" y='50%' textAnchor="middle" className={styles.mintHeadingSmallText} id="text" strokeWidth="2" stroke="url(#gradient)" fill="url(#gradient2)">JENAL</text>
                 </svg>
             </div>
         </div>
@@ -166,19 +184,19 @@ const Mint = (props) => {
                 <div className={styles.selectAmount}>
                         <svg className={styles.btnMinus} width="49" height="40" viewBox="0 0 49 40" fill="none" xmlns="http://www.w3.org/2000/svg" onClick={() => mintAmount>1 && setMintAmount(mintAmount-1)}>
                             <rect width="49" height="40" rx="16" transform="matrix(1 0 0 -1 0 40)" fill="#FAF4FF"/>
-                            <path d="M17 20C27.1887 20 31.2453 20 32 20" stroke="black" stroke-width="5"/>
+                            <path d="M17 20C27.1887 20 31.2453 20 32 20" stroke="black" strokeWidth="5"/>
                         </svg>
                         <div className={styles.numberAmount}>
                             <span> {mintAmount} </span>
                         </div>
-                        <svg className={styles.btnplus} width="49" height="40" viewBox="0 0 49 40" fill="none" xmlns="http://www.w3.org/2000/svg" onClick={function() { if(!freeMint) { mintAmount+balance<5 && setMintAmount(mintAmount+ 1 )}} }>
+                        <svg className={styles.btnplus} width="49" height="40" viewBox="0 0 49 40" fill="none" xmlns="http://www.w3.org/2000/svg" onClick={function() { if(freeMint === 'false') { mintAmount+balance<5 && setMintAmount(mintAmount+ 1 )}} }>
                             <rect width="49" height="40" rx="16" transform="matrix(1 0 0 -1 0 40)" fill="#FAF4FF"/>
-                            <path d="M14 20C27.5849 20 32.9937 20 34 20" stroke="black" stroke-width="4"/>
-                            <path d="M24 10C24 23.5849 24 28.9937 24 30" stroke="black" stroke-width="4"/>
+                            <path d="M14 20C27.5849 20 32.9937 20 34 20" stroke="black" strokeWidth="4"/>
+                            <path d="M24 10C24 23.5849 24 28.9937 24 30" stroke="black" strokeWidth="4"/>
                         </svg>
                 </div>
                 <div className={styles.mintPrice}>
-                    { freeMint ? 'FREE' : mintPrice * mintAmount / 10000 }
+                    { freeMint === 'true' ? 'FREE' : freeMint === 'false' ? ethers.utils.formatUnits(mintPrice * mintAmount, 'gwei') : 'First is FREE' }
                 </div>
                 <div className={styles.mintBtn} onClick={handleMint}>
                     <div className={styles.mainBtn}>
@@ -186,7 +204,7 @@ const Mint = (props) => {
                     </div>
                 </div>
                 <div className={styles.perWalletInfo}>
-                    { freeMint ? '1 per Wallet' :  '5 per wallet' }
+                    5 per wallet in total
                 </div>
                 </>
             }
@@ -353,7 +371,7 @@ const Mint = (props) => {
             </g>
             <g filter="url(#filter30_dd_295_3)"  >
                 <path d="M102.5 488.723L102.5 379.403L102.5 286.463C102.5 277.995 106.473 270.016 113.233 264.914L164.186 226.451C168.871 222.913 174.582 221 180.453 221L1104.97 221C1111.14 221 1117.12 223.111 1121.92 226.983L1168.95 264.911C1175.31 270.036 1179 277.763 1179 285.928L1179 489.258C1179 497.236 1175.47 504.806 1169.36 509.936L1122.03 549.678C1117.17 553.761 1111.02 556 1104.67 556L180.747 556C174.696 556 168.82 553.967 164.062 550.228L112.816 509.951C106.303 504.832 102.5 497.007 102.5 488.723Z" fill="url(#paint0_linear_295_3)"/>
-                <path d="M102.5 488.723L102.5 379.403L102.5 286.463C102.5 277.995 106.473 270.016 113.233 264.914L164.186 226.451C168.871 222.913 174.582 221 180.453 221L1104.97 221C1111.14 221 1117.12 223.111 1121.92 226.983L1168.95 264.911C1175.31 270.036 1179 277.763 1179 285.928L1179 489.258C1179 497.236 1175.47 504.806 1169.36 509.936L1122.03 549.678C1117.17 553.761 1111.02 556 1104.67 556L180.747 556C174.696 556 168.82 553.967 164.062 550.228L112.816 509.951C106.303 504.832 102.5 497.007 102.5 488.723Z" stroke="#E964FF" stroke-width="2"/>
+                <path d="M102.5 488.723L102.5 379.403L102.5 286.463C102.5 277.995 106.473 270.016 113.233 264.914L164.186 226.451C168.871 222.913 174.582 221 180.453 221L1104.97 221C1111.14 221 1117.12 223.111 1121.92 226.983L1168.95 264.911C1175.31 270.036 1179 277.763 1179 285.928L1179 489.258C1179 497.236 1175.47 504.806 1169.36 509.936L1122.03 549.678C1117.17 553.761 1111.02 556 1104.67 556L180.747 556C174.696 556 168.82 553.967 164.062 550.228L112.816 509.951C106.303 504.832 102.5 497.007 102.5 488.723Z" stroke="#E964FF" strokeWidth="2"/>
             </g>
             <g onClick={scrollToGiveaway} className={styles.giveawaySec}>
                 <g filter="url(#filter31_dd_295_3)"  >
@@ -468,165 +486,165 @@ const Mint = (props) => {
             </g>
             <g  >
                 <g filter="url(#filter38_d_295_3)">
-                <rect y="2" width="339" height="324" transform="matrix(-1 8.74228e-08 8.74228e-08 1 488 232)" fill="url(#pattern1)" shape-rendering="crispEdges" />
+                <rect y="2" width="339" height="324" transform="matrix(-1 8.74228e-08 8.74228e-08 1 488 232)" fill="url(#pattern1)" shapeRendering="crispEdges" />
                 </g>
                 <g filter="url(#filter37_dd_295_3)">
-                <rect x="795" y="249" width="324" height="309" fill="url(#pattern0)" shape-rendering="crispEdges"  />
+                <rect x="795" y="249" width="324" height="309" fill="url(#pattern0)" shapeRendering="crispEdges"  />
                 </g>
             </g>
             <defs>
-                <filter id="filter0_f_295_3" x="1091.6" y="608.42" width="91.1768" height="94.5372" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter0_f_295_3" x="1091.6" y="608.42" width="91.1768" height="94.5372" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="18.01" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter1_f_295_3" x="1102.2" y="619.249" width="70.0189" height="70.0638" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter1_f_295_3" x="1102.2" y="619.249" width="70.0189" height="70.0638" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="15.9022" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter2_f_295_3" x="1120.85" y="638.235" width="32.6759" height="32.7394" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter2_f_295_3" x="1120.85" y="638.235" width="32.6759" height="32.7394" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter3_f_295_3" x="1120.82" y="638.236" width="32.7404" height="32.7404" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter3_f_295_3" x="1120.82" y="638.236" width="32.7404" height="32.7404" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter4_f_295_3" x="1120.75" y="637.955" width="32.8007" height="32.8055" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter4_f_295_3" x="1120.75" y="637.955" width="32.8007" height="32.8055" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="5.26706" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter5_f_295_3" x="1114.8" y="632.239" width="44.5001" height="44.5284" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter5_f_295_3" x="1114.8" y="632.239" width="44.5001" height="44.5284" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="10.1065" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter6_f_295_3" x="73.6948" y="608.208" width="97.544" height="102.235" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter6_f_295_3" x="73.6948" y="608.208" width="97.544" height="102.235" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="18.01" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter7_f_295_3" x="86.5726" y="621.507" width="71.7708" height="71.8822" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter7_f_295_3" x="86.5726" y="621.507" width="71.7708" height="71.8822" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="15.9022" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter8_f_295_3" x="103.336" y="638.738" width="38.2912" height="38.2902" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter8_f_295_3" x="103.336" y="638.738" width="38.2912" height="38.2902" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter9_f_295_3" x="103.383" y="638.728" width="38.1974" height="38.3058" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter9_f_295_3" x="103.383" y="638.728" width="38.1974" height="38.3058" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter10_f_295_3" x="104.649" y="639.688" width="35.7323" height="35.7245" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter10_f_295_3" x="104.649" y="639.688" width="35.7323" height="35.7245" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="5.26706" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter11_f_295_3" x="99.8222" y="634.903" width="45.6134" height="45.6827" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter11_f_295_3" x="99.8222" y="634.903" width="45.6134" height="45.6827" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="10.1065" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter12_f_295_3" x="866.832" y="111.211" width="97.9346" height="95.586" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter12_f_295_3" x="866.832" y="111.211" width="97.9346" height="95.586" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="18.01" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter13_f_295_3" x="878.707" y="123.597" width="70.849" height="70.9486" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter13_f_295_3" x="878.707" y="123.597" width="70.849" height="70.9486" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="15.9022" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter14_f_295_3" x="896.609" y="141.142" width="35.8107" height="35.8146" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter14_f_295_3" x="896.609" y="141.142" width="35.8107" height="35.8146" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter15_f_295_3" x="896.65" y="141.138" width="35.7306" height="35.8254" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter15_f_295_3" x="896.65" y="141.138" width="35.7306" height="35.8254" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter16_f_295_3" x="897.183" y="141.984" width="34.078" height="34.0702" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter16_f_295_3" x="897.183" y="141.984" width="34.078" height="34.0702" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="5.26706" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter17_f_295_3" x="891.879" y="136.375" width="45.0275" height="45.09" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter17_f_295_3" x="891.879" y="136.375" width="45.0275" height="45.09" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="10.1065" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter18_f_295_3" x="82.5561" y="61.3901" width="80.5518" height="82.1212" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter18_f_295_3" x="82.5561" y="61.3901" width="80.5518" height="82.1212" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="18.01" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter19_f_295_3" x="89.6624" y="68.638" width="66.3333" height="66.3705" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter19_f_295_3" x="89.6624" y="68.638" width="66.3333" height="66.3705" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="15.9022" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter20_f_295_3" x="111.002" y="90.1327" width="23.6681" height="23.6711" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter20_f_295_3" x="111.002" y="90.1327" width="23.6681" height="23.6711" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter21_f_295_3" x="111.017" y="90.1298" width="23.6388" height="23.675" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter21_f_295_3" x="111.017" y="90.1298" width="23.6388" height="23.675" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter22_f_295_3" x="109.868" y="88.878" width="25.9628" height="25.9618" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter22_f_295_3" x="109.868" y="88.878" width="25.9628" height="25.9618" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="5.26706" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter23_f_295_3" x="101.809" y="80.831" width="42.1564" height="42.1818" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter23_f_295_3" x="101.809" y="80.831" width="42.1564" height="42.1818" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="10.1065" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter24_f_295_3" x="1112.39" y="64.5317" width="89.921" height="93.21" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter24_f_295_3" x="1112.39" y="64.5317" width="89.921" height="93.21" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="18.01" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter25_f_295_3" x="1122.67" y="75.1165" width="69.3314" height="69.4095" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter25_f_295_3" x="1122.67" y="75.1165" width="69.3314" height="69.4095" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="15.9022" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter26_f_295_3" x="1141.49" y="94.2597" width="31.7306" height="31.7306" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter26_f_295_3" x="1141.49" y="94.2597" width="31.7306" height="31.7306" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter27_f_295_3" x="1141.53" y="94.2548" width="31.6662" height="31.7404" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter27_f_295_3" x="1141.53" y="94.2548" width="31.6662" height="31.7404" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="4.08598" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter28_f_295_3" x="1141.71" y="94.2208" width="31.3495" height="31.3446" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter28_f_295_3" x="1141.71" y="94.2208" width="31.3495" height="31.3446" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="5.26706" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter29_f_295_3" x="1135.43" y="87.9736" width="44.0626" height="44.1134" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter29_f_295_3" x="1135.43" y="87.9736" width="44.0626" height="44.1134" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
                 <feGaussianBlur stdDeviation="10.1065" result="effect1_foregroundBlur_295_3"/>
                 </filter>
-                <filter id="filter30_dd_295_3" x="88.5" y="196" width="1114.5" height="385" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter30_dd_295_3" x="88.5" y="196" width="1114.5" height="385" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dx="19" dy="20"/>
                 <feGaussianBlur stdDeviation="2"/>
@@ -641,8 +659,8 @@ const Mint = (props) => {
                 <feBlend mode="normal" in2="effect1_dropShadow_295_3" result="effect2_dropShadow_295_3"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_295_3" result="shape"/>
                 </filter>
-                <filter id="filter31_dd_295_3" x="96.6816" y="131.347" width="306.377" height="185.76" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter31_dd_295_3" x="96.6816" y="131.347" width="306.377" height="185.76" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dy="4"/>
                 <feGaussianBlur stdDeviation="2"/>
@@ -657,8 +675,8 @@ const Mint = (props) => {
                 <feBlend mode="normal" in2="effect1_dropShadow_295_3" result="effect2_dropShadow_295_3"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_295_3" result="shape"/>
                 </filter>
-                <filter id="filter32_dd_295_3" x="237.572" y="129.985" width="77.4922" height="63.8672" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter32_dd_295_3" x="237.572" y="129.985" width="77.4922" height="63.8672" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dx="4" dy="-2"/>
                 <feGaussianBlur stdDeviation="2"/>
@@ -671,8 +689,8 @@ const Mint = (props) => {
                 <feBlend mode="normal" in2="effect1_dropShadow_295_3" result="effect2_dropShadow_295_3"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_295_3" result="shape"/>
                 </filter>
-                <filter id="filter33_dd_295_3" x="269.703" y="148.651" width="44.7051" height="46.2393" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter33_dd_295_3" x="269.703" y="148.651" width="44.7051" height="46.2393" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dy="4"/>
                 <feGaussianBlur stdDeviation="2"/>
@@ -685,8 +703,8 @@ const Mint = (props) => {
                 <feBlend mode="normal" in2="effect1_dropShadow_295_3" result="effect2_dropShadow_295_3"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_295_3" result="shape"/>
                 </filter>
-                <filter id="filter34_ddd_295_3" x="29.4824" y="140.054" width="169.496" height="156.287" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter34_ddd_295_3" x="29.4824" y="140.054" width="169.496" height="156.287" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dx="7" dy="-2"/>
                 <feGaussianBlur stdDeviation="2"/>
@@ -705,8 +723,8 @@ const Mint = (props) => {
                 <feBlend mode="normal" in2="effect2_dropShadow_295_3" result="effect3_dropShadow_295_3"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="effect3_dropShadow_295_3" result="shape"/>
                 </filter>
-                <filter id="filter35_d_295_3" x="59.5605" y="256.719" width="94.6738" height="78.5254" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter35_d_295_3" x="59.5605" y="256.719" width="94.6738" height="78.5254" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dy="-4"/>
                 <feGaussianBlur stdDeviation="2"/>
@@ -714,8 +732,8 @@ const Mint = (props) => {
                 <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_295_3"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_295_3" result="shape"/>
                 </filter>
-                <filter id="filter36_d_295_3" x="306.639" y="98.8867" width="86.4141" height="72.2803" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter36_d_295_3" x="306.639" y="98.8867" width="86.4141" height="72.2803" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dx="3" dy="1"/>
                 <feGaussianBlur stdDeviation="2"/>
@@ -723,8 +741,8 @@ const Mint = (props) => {
                 <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_295_3"/>
                 <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_295_3" result="shape"/>
                 </filter>
-                <filter id="filter37_dd_295_3" x="783" y="236" width="347" height="332" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter37_dd_295_3" x="783" y="236" width="347" height="332" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dx="4" dy="5"/>
                 <feGaussianBlur stdDeviation="3.5"/>
@@ -740,8 +758,8 @@ const Mint = (props) => {
                 <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
                     <image href='/mint2.png' width="500" height="475" transform="matrix(0.0019907800015062094, 0, 0, 0.0020869600120931864, 0.00921659916639328, 0)" />
                 </pattern>
-                <filter id="filter38_d_295_3" x="145" y="232" width="347" height="332" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <filter id="filter38_d_295_3" x="145" y="232" width="347" height="332" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix"/>
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
                 <feOffset dy="4"/>
                 <feGaussianBlur stdDeviation="2"/>
@@ -754,124 +772,124 @@ const Mint = (props) => {
                     <image href='/mint1.png' width="499" height="475" transform="matrix(0.002004010137170553, 0, 0, 0.00209419010207057, 0, 0)" />
                 </pattern>
                 <linearGradient id="paint0_linear_295_3" x1="640.75" y1="221" x2="640.75" y2="556" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#152331"/>
+                <stop stopColor="#152331"/>
                 <stop offset="1"/>
                 </linearGradient>
                 <radialGradient id="paint1_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(272.649 158.846) rotate(-22.9588) scale(29.2128 24.7686)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint2_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(291.582 160.749) rotate(-11.6176) scale(15.9376 17.9861)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint3_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(260.095 174.018) rotate(120.522) scale(20.8288 19.5451)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint4_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(268.164 158.113) rotate(-121.996) scale(41.8324 92.1217)">
-                <stop stop-color="white" stop-opacity="0"/>
-                <stop offset="0.3571" stop-color="white"/>
+                <stop stopColor="white" stopOpacity="0"/>
+                <stop offset="0.3571" stopColor="white"/>
                 <stop offset="1"/>
                 </radialGradient>
                 <radialGradient id="paint5_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(289.959 169.298) rotate(-22.2427) scale(15.6604 13.2898)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint6_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(300.099 170.46) rotate(-10.8909) scale(8.54374 9.65065)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint7_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(283.119 177.344) rotate(121.219) scale(11.1708 10.4824)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint8_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(287.556 168.876) rotate(-121.263) scale(22.4409 49.3888)">
-                <stop stop-color="white" stop-opacity="0"/>
-                <stop offset="0.3571" stop-color="white"/>
+                <stop stopColor="white" stopOpacity="0"/>
+                <stop offset="0.3571" stopColor="white"/>
                 <stop offset="1"/>
                 </radialGradient>
                 <radialGradient id="paint9_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(103.167 197.309) rotate(-36.5866) scale(72.7086 62.4255)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint10_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(150.166 189.684) rotate(-25.1357) scale(39.7881 45.2098)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint11_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(81.6765 242.217) rotate(106.295) scale(51.7671 49.331)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint12_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(91.6415 198.118) rotate(-136.139) scale(106.023 229.691)">
-                <stop stop-color="white" stop-opacity="0"/>
-                <stop offset="0.3571" stop-color="white"/>
+                <stop stopColor="white" stopOpacity="0"/>
+                <stop offset="0.3571" stopColor="white"/>
                 <stop offset="1"/>
                 </radialGradient>
                 <radialGradient id="paint13_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(104.157 291.309) rotate(-22.2427) scale(39.1115 33.1908)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint14_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(129.488 294.205) rotate(-10.8909) scale(21.3378 24.1022)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint15_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(87.0804 311.401) rotate(121.219) scale(27.8987 26.1796)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint16_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(98.1582 290.251) rotate(-121.263) scale(56.0455 123.347)">
-                <stop stop-color="white" stop-opacity="0"/>
-                <stop offset="0.3571" stop-color="white"/>
+                <stop stopColor="white" stopOpacity="0"/>
+                <stop offset="0.3571" stopColor="white"/>
                 <stop offset="1"/>
                 </radialGradient>
                 <radialGradient id="paint17_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(344.205 126.034) rotate(-22.9588) scale(35.5193 30.1156)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint18_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(367.227 128.347) rotate(-11.6176) scale(19.3783 21.869)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint19_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(328.942 144.481) rotate(120.522) scale(25.3253 23.7645)">
-                <stop stop-color="white"/>
-                <stop offset="0.5179" stop-color="white"/>
-                <stop offset="1" stop-color="#D0D0D0"/>
+                <stop stopColor="white"/>
+                <stop offset="0.5179" stopColor="white"/>
+                <stop offset="1" stopColor="#D0D0D0"/>
                 </radialGradient>
                 <radialGradient id="paint20_radial_295_3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(338.754 125.143) rotate(-121.996) scale(50.8632 112.009)">
-                <stop stop-color="white" stop-opacity="0"/>
-                <stop offset="0.3571" stop-color="white"/>
+                <stop stopColor="white" stopOpacity="0"/>
+                <stop offset="0.3571" stopColor="white"/>
                 <stop offset="1"/>
                 </radialGradient>
                 <linearGradient id="paint21_linear_295_3" x1="311.132" y1="223.394" x2="287.664" y2="232.259" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1, 0, 0, 1, 0, 0)">
-                <stop stop-color="#F7971E"/>
-                <stop offset="1" stop-color="#FFD200"/>
+                <stop stopColor="#F7971E"/>
+                <stop offset="1" stopColor="#FFD200"/>
                 </linearGradient>
                 <linearGradient id="paint22_linear_295_3" x1="303.382" y1="238.417" x2="303.946" y2="239.786" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1, 0, 0, 1, 0, 0)">
-                <stop stop-color="#6B0707"/>
-                <stop offset="1" stop-color="#6B0707" stop-opacity="0"/>
+                <stop stopColor="#6B0707"/>
+                <stop offset="1" stopColor="#6B0707" stopOpacity="0"/>
                 </linearGradient>
                 <linearGradient id="paint23_linear_295_3" x1="211.132" y1="260.559" x2="187.664" y2="269.424" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1, 0, 0, 1, 0, 0)">
-                <stop stop-color="#F7971E"/>
-                <stop offset="1" stop-color="#FFD200"/>
+                <stop stopColor="#F7971E"/>
+                <stop offset="1" stopColor="#FFD200"/>
                 </linearGradient>
                 <linearGradient id="paint24_linear_295_3" x1="203.382" y1="275.582" x2="203.946" y2="276.952" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1, 0, 0, 1, 0, 0)">
-                <stop stop-color="#6B0707"/>
-                <stop offset="1" stop-color="#6B0707" stop-opacity="0"/>
+                <stop stopColor="#6B0707"/>
+                <stop offset="1" stopColor="#6B0707" stopOpacity="0"/>
                 </linearGradient>
               </defs>
             </svg>

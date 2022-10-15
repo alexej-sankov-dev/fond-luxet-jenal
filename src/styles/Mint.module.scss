@@ -15,6 +15,11 @@
     img {
         width: 100%;
         height: auto;
+
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
     }
 }
 
@@ -28,7 +33,16 @@
     svg {
         width: 100%;
         height: auto;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
     }
+
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 .mintHeading {
@@ -102,6 +116,10 @@
 
     color: #FFFFFF;
     margin-top: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .textGreen {
@@ -150,6 +168,11 @@
     color: #8A1BCE;
     pointer-events: none;
 
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+
 }
 
 .mintPrice {
@@ -166,6 +189,10 @@
     -webkit-text-stroke: 1px #26122C;
     margin-top: 20px;
 
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 .mintBtn {
@@ -224,6 +251,11 @@
         z-index: 4;
         -webkit-text-stroke: 1px #26122C;
         pointer-events: none;
+
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
     }
 
 }
@@ -242,6 +274,11 @@
     text-align: center;
 
     -webkit-text-stroke: 1px #26122C;
+
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 .mintSoon {
@@ -300,6 +337,9 @@
     line-height: 63px;
     text-align: center;
     letter-spacing: 0.09em;
+
+    -webkit-box-decoration-break: clone;
+    display: inline;
 
     background: linear-gradient(90deg, #FC00FF 0%, #00DBDE 100%);
     -webkit-background-clip: text;

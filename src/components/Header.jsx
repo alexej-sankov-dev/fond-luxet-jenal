@@ -2,20 +2,20 @@ import React from 'react'
 import styles from '../styles/Header.module.scss'
 
 const Header = ({ accounts, setAccounts }) => {
-  const isConnected = Boolean(accounts[0])
-
+  
   async function connectAccout() {
-      console.log('conntect')
       if (window.ethereum) {
           const accounts = await window.ethereum.request({
               method: 'eth_requestAccounts'
           })
-          setAccounts(accounts)
-          console.log(accounts)
+          setAccounts(accounts[0])
       } else{
-        alert("install metamask extension!!")
+        alert("Install Metamask extension or login into your wallet!! Refresh page afterwards!" )
       }
   }
+
+
+  
   return (
     <header className={styles.header}>
         <nav className={styles.menu}>
@@ -34,7 +34,7 @@ const Header = ({ accounts, setAccounts }) => {
         </nav>
         <div className={styles.headerInfo}>
             <div className={styles.conntectBtn} onClick={connectAccout}>
-                { isConnected ?
+                { accounts !== null && accounts !== '' && accounts !== 'null' ?
 
                     <span>Connected</span>
                     :
@@ -45,8 +45,8 @@ const Header = ({ accounts, setAccounts }) => {
                 </div>
             </div>
             <div className={styles.linkIcons}>
-                <div className={styles.linkItem}>
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <a href={window.OPENSEA} className={styles.linkItem}>
+                    <svg width="31A" height="31" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g>
                             <path d="M27.1401 13.5701C27.1401 21.0642 21.0642 27.1401 13.5701 27.1401C6.07594 27.1401 0 21.0642 0 13.5701C0 6.07594 6.07594 0 13.5701 0C21.0658 0 27.1401 6.07594 27.1401 13.5701Z" fill="#2081E2"/>
                             <path d="M6.69517 14.0258L6.75371 13.9338L10.2838 8.41137C10.3354 8.33052 10.4567 8.33888 10.4957 8.4267C11.0855 9.7484 11.5944 11.3922 11.356 12.4155C11.2542 12.8366 10.9754 13.4068 10.6616 13.9338C10.6212 14.0105 10.5766 14.0858 10.5292 14.1583C10.5069 14.1917 10.4692 14.2112 10.4288 14.2112H6.79833C6.70073 14.2112 6.64358 14.1053 6.69517 14.0258Z" fill="white"/>
@@ -58,19 +58,19 @@ const Header = ({ accounts, setAccounts }) => {
                         </clipPath>
                         </defs>
                     </svg>
-                </div>
-                <div className={styles.linkItem}>
+                </a>
+                <a href={window.ICON2_LINK} className={styles.linkItem}>
                     <svg width="50" height="38" viewBox="0 0 50 38" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18.6438 6.125L9.125 15.5937L24.9813 31.375L40.8375 15.6L31.3188 6.125H18.6438Z" fill="#2DE370"/>
                         <path d="M18.2004 12.2754C21.9441 8.52539 28.0191 8.52539 31.7629 12.2754L35.0004 15.5129L31.7629 18.7504C28.0191 22.5004 21.9441 22.5004 18.2004 18.7504L14.9629 15.5129L18.2004 12.2754Z" fill="#121619"/>
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M24.982 19.4809C22.7945 19.4809 21.0195 17.7496 21.0195 15.6184C21.0195 13.4871 22.7945 11.7559 24.982 11.7559C27.1695 11.7559 28.9445 13.4871 28.9445 15.6184C28.9445 17.7496 27.1758 19.4809 24.982 19.4809Z" fill="white"/>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M24.982 19.4809C22.7945 19.4809 21.0195 17.7496 21.0195 15.6184C21.0195 13.4871 22.7945 11.7559 24.982 11.7559C27.1695 11.7559 28.9445 13.4871 28.9445 15.6184C28.9445 17.7496 27.1758 19.4809 24.982 19.4809Z" fill="white"/>
                         <path d="M24.9813 17.1813C24.0625 17.1813 23.3125 16.4313 23.3125 15.5125C23.3125 14.5875 24.0625 13.8438 24.9813 13.8438C25.9 13.8438 26.65 14.5937 26.65 15.5125C26.65 16.4375 25.9063 17.1813 24.9813 17.1813Z" fill="#121619"/>
                     </svg>
-                </div>
-                <div className={styles.linkItem}>
+                </a>
+                <a href={window.TWITTER} className={styles.linkItem}>
                     <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_103_681)">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M29.4406 5.35735C28.3589 5.85001 27.1942 6.18305 25.9724 6.33186C27.2199 5.56642 28.1774 4.35247 28.6285 2.90669C27.4603 3.61555 26.1695 4.13121 24.7904 4.40767C23.6915 3.20454 22.1206 2.45312 20.3822 2.45312C17.0488 2.45312 14.3445 5.22625 14.3445 8.64636C14.3445 9.1319 14.3962 9.60317 14.5 10.057C9.48041 9.79798 5.03081 7.3349 2.04977 3.58358C1.52974 4.50151 1.23235 5.56642 1.23235 6.70055C1.23235 8.8483 2.29863 10.7442 3.91945 11.8553C2.93113 11.8252 1.99779 11.5435 1.18221 11.0828V11.1589C1.18221 14.1606 3.2644 16.6644 6.02925 17.2316C5.52302 17.377 4.98895 17.4497 4.43764 17.4497C4.04894 17.4497 3.66875 17.4124 3.30051 17.3397C4.06941 19.7993 6.29858 21.5908 8.94244 21.6387C6.87565 23.3009 4.26997 24.2913 1.44119 24.2913C0.953814 24.2913 0.471732 24.263 0 24.2062C2.6733 25.9604 5.84939 26.9864 9.25869 26.9864C20.3698 26.9864 26.4437 17.5504 26.4437 9.36558C26.4437 9.09625 26.4384 8.82691 26.428 8.56287C27.6089 7.68933 28.6335 6.59958 29.4406 5.35735Z" fill="#00AAEC"/>
+                        <g clipPath="url(#clip0_103_681)">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M29.4406 5.35735C28.3589 5.85001 27.1942 6.18305 25.9724 6.33186C27.2199 5.56642 28.1774 4.35247 28.6285 2.90669C27.4603 3.61555 26.1695 4.13121 24.7904 4.40767C23.6915 3.20454 22.1206 2.45312 20.3822 2.45312C17.0488 2.45312 14.3445 5.22625 14.3445 8.64636C14.3445 9.1319 14.3962 9.60317 14.5 10.057C9.48041 9.79798 5.03081 7.3349 2.04977 3.58358C1.52974 4.50151 1.23235 5.56642 1.23235 6.70055C1.23235 8.8483 2.29863 10.7442 3.91945 11.8553C2.93113 11.8252 1.99779 11.5435 1.18221 11.0828V11.1589C1.18221 14.1606 3.2644 16.6644 6.02925 17.2316C5.52302 17.377 4.98895 17.4497 4.43764 17.4497C4.04894 17.4497 3.66875 17.4124 3.30051 17.3397C4.06941 19.7993 6.29858 21.5908 8.94244 21.6387C6.87565 23.3009 4.26997 24.2913 1.44119 24.2913C0.953814 24.2913 0.471732 24.263 0 24.2062C2.6733 25.9604 5.84939 26.9864 9.25869 26.9864C20.3698 26.9864 26.4437 17.5504 26.4437 9.36558C26.4437 9.09625 26.4384 8.82691 26.428 8.56287C27.6089 7.68933 28.6335 6.59958 29.4406 5.35735Z" fill="#00AAEC"/>
                         </g>
                         <defs>
                         <clipPath id="clip0_103_681">
@@ -78,7 +78,7 @@ const Header = ({ accounts, setAccounts }) => {
                         </clipPath>
                         </defs>
                     </svg>
-                </div>
+                </a>
             </div>
         </div>
     </header>

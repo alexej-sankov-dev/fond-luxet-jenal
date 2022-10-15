@@ -61,7 +61,7 @@ const FAQ = () => {
                             <span>+</span>
                         </div>
                         <div className={`${styles.faqItemText} ${ open1 ? styles.faqItemTextOpen : null }`}>
-                            {faqData[1].answer.split('\n').map(x => <div>{x}</div>)}
+                            {faqData[1].answer.split('\n').map( (x, i) => <div key={i}>{x}</div>)}
                         </div>
                     </div>
                 </div>
@@ -74,7 +74,7 @@ const FAQ = () => {
                             <span>+</span>
                         </div>
                         <div className={`${styles.faqItemText} ${ open2 ? styles.faqItemTextOpen : null }`}>
-                            {faqData[2].answer.split('\n').map(x => <div>{x}</div>)}
+                            {faqData[2].answer.split('\n').map((x, i) => <div key={i}>{x}</div>)}
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@ const FAQ = () => {
                             <span>+</span>
                         </div>
                         <div className={`${styles.faqItemText} ${ open3 ? styles.faqItemTextOpen : null }`}>
-                            {faqData[3].answer.split('\n').map(x => <div>{x}</div>)}
+                            {faqData[3].answer.split('\n').map((x, i) => <div key={i}>{x}</div>)}
                         </div>
                     </div>
                 </div>
@@ -100,7 +100,7 @@ const FAQ = () => {
                             <span>+</span>
                         </div>
                         <div className={`${styles.faqItemText} ${ open4 ? styles.faqItemTextOpen : null }`}>
-                            {faqData[4].answer.split('\n').map(x => <div>{x}</div>)}
+                            {faqData[4].answer.split('\n').map((x, i) => <div key={i}>{x}</div>)}
                         </div>
                     </div>
                 </div>
@@ -113,7 +113,7 @@ const FAQ = () => {
                             <span>+</span>
                         </div>
                         <div className={`${styles.faqItemText} ${ open5 ? styles.faqItemTextOpen : null }`}>
-                            {faqData[5].answer.split('\n').map(x => <div>{x}</div>)}
+                            {faqData[5].answer.split('\n').map((x, i) => <div key={i}>{x}</div>)}
                         </div>
                     </div>
                 </div>
@@ -126,11 +126,11 @@ const FAQ = () => {
                             <span>+</span>
                         </div>
                         <div className={`${styles.faqItemText} ${ open6 ? styles.faqItemTextOpen : null }`}>
-                            {faqData[6].answer.split('\n').map(x => <div>{x}</div>)}
+                            {faqData[6].answer.split('\n').map((x, i) => <div key={i}>{x}</div>)}
                         </div>
                     </div>
                 </div>
-                <div lassName={`${styles.faqItemWrapper} ${styles.faqItemLast}`}>
+                <div className={`${styles.faqItemWrapper} ${styles.faqItemLast}`}>
                     <div className={styles.faqItem}>
                         <div className={styles.faqItemHeading}>
                             {faqData[7].question}
@@ -139,7 +139,7 @@ const FAQ = () => {
                             <span>+</span>
                         </div>
                         <div className={`${styles.faqItemText} ${ open7 ? styles.faqItemTextOpen : null }`}>
-                            {faqData[7].answer.split('\n').map(x => <div>{x}</div>)}
+                            {faqData[7].answer.split('\n').map((x, i) => <div key={i}>{x}</div>)}
                         </div>
                     </div>
                 </div>

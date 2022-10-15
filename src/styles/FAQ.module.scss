@@ -94,6 +94,9 @@
         align-items: center;
         text-align: center;
 
+        -webkit-box-decoration-break: clone;
+        display: inline-block;
+
         background: linear-gradient(90deg, #FDFC47 0%, #24FE41 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;

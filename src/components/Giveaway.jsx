@@ -1,4 +1,3 @@
-import axios from 'axios'
 import React from 'react'
 import styles from '../styles/Giveaway.module.scss'
 
@@ -6,15 +5,40 @@ const Giveaway = (props) => {
 
   const handleSubmitForm = (event) => {
     event.preventDefault();
-    axios.post('https://formkeep.com/f/2a68b8e1bb8a', event.target, {
-        headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-        }
-    }).then(response => {
-        document.getElementById("giveway-form").reset();
-    })
+    const msg = `New Submit:
+    Wallet: ${event.target.wallet.value}
+    Email: ${event.target.email.value}
+    `
+
+    console.log(event.target.wallet.value)
+    
+    const options = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Telegram Bot SDK - (https://github.com/irazasyed/telegram-bot-sdk)',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: msg,
+        parse_mode: 'HTML',
+        disable_web_page_preview: false,
+        disable_notification: false,
+        reply_to_message_id: null,
+        chat_id: '-649267088'
+      })
+    };
+    
+    fetch('https://api.telegram.org/bot5328997883:AAELBT4-Q3t9e6BJ2KFKQ8oeZSxez4-EK_U/sendMessage', options)
+      .then(response => response.json())
+      .then(response => document.getElementById("giveway-form").reset())
+      .catch(err => void(0));
+
+    
   }
+
+
+
   return (
     <div ref={props.giveawayRef} className={styles.giveawayWrapper} id='giveaway'>
         <div className={styles.giveaway}>
@@ -43,24 +67,24 @@ const Giveaway = (props) => {
                             </g>
                             <defs>
                             <linearGradient id="paint0_linear_103_362" x1="0.0273437" y1="21.0739" x2="23.7757" y2="21.0739" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#B134D0"/>
-                            <stop offset="1" stop-color="#19C5BF"/>
+                            <stop stopColor="#B134D0"/>
+                            <stop offset="1" stopColor="#19C5BF"/>
                             </linearGradient>
                             <linearGradient id="paint1_linear_103_362" x1="0" y1="13.7264" x2="11.8765" y2="13.7264" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#B134D0"/>
-                            <stop offset="1" stop-color="#19C5BF"/>
+                            <stop stopColor="#B134D0"/>
+                            <stop offset="1" stopColor="#19C5BF"/>
                             </linearGradient>
                             <linearGradient id="paint2_linear_103_362" x1="11.8711" y1="13.7249" x2="23.7429" y2="13.7249" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#B134D0"/>
-                            <stop offset="1" stop-color="#19C5BF"/>
+                            <stop stopColor="#B134D0"/>
+                            <stop offset="1" stopColor="#19C5BF"/>
                             </linearGradient>
                             <linearGradient id="paint3_linear_103_362" x1="0" y1="31.1503" x2="11.8765" y2="31.1503" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#B134D0"/>
-                            <stop offset="1" stop-color="#19C5BF"/>
+                            <stop stopColor="#B134D0"/>
+                            <stop offset="1" stopColor="#19C5BF"/>
                             </linearGradient>
                             <linearGradient id="paint4_linear_103_362" x1="11.8711" y1="31.1479" x2="23.7523" y2="31.1479" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#B134D0"/>
-                            <stop offset="1" stop-color="#19C5BF"/>
+                            <stop stopColor="#B134D0"/>
+                            <stop offset="1" stopColor="#19C5BF"/>
                             </linearGradient>
                             </defs>
                         </svg>
@@ -72,9 +96,9 @@ const Giveaway = (props) => {
                     participate
                     <span>
                         <svg width="54" height="38" viewBox="0 0 54 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g clip-path="url(#clip0_103_357)">
-                            <path d="M1.125 19L42.75 19" stroke="#C800DA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M27 7.91683L42.75 19.0002L27 30.0835" stroke="#C800DA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <g clipPath="url(#clip0_103_357)">
+                            <path d="M1.125 19L42.75 19" stroke="#C800DA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M27 7.91683L42.75 19.0002L27 30.0835" stroke="#C800DA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                             </g>
                             <defs>
                             <clipPath id="clip0_103_357">
@@ -94,8 +118,8 @@ const Giveaway = (props) => {
                     <path d="M498.501 0H21C9.40202 0 0 9.40202 0 21V616C0 627.598 9.40201 637 21 637H499C499 637 417.246 452.881 417.246 328.438C417.246 190.305 498.501 0 498.501 0Z" fill="url(#paint0_linear_103_355)"/>
                     <defs>
                     <linearGradient id="paint0_linear_103_355" x1="499.498" y1="311.047" x2="8.47453" y2="311.047" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#FDFC47"/>
-                    <stop offset="1" stop-color="#24FE41"/>
+                    <stop stopColor="#FDFC47"/>
+                    <stop offset="1" stopColor="#24FE41"/>
                     </linearGradient>
                     </defs>
                 </svg>
@@ -105,9 +129,9 @@ const Giveaway = (props) => {
                     id='giveway-form'
                     onSubmit={handleSubmitForm}
                 >
-                    <label className={styles.inputLabel} for="wallet">Wallet address</label>
+                    <label className={styles.inputLabel} htmlFor="wallet">Wallet address</label>
                     <input className={styles.input} type="text" id="wallet" name="wallet" />
-                    <label className={styles.inputLabel} for="email">E-mail</label>
+                    <label className={styles.inputLabel} htmlFor="email">E-mail</label>
                     <input className={styles.input} type="text" id="email" name="email" />
                     <button className={styles.submitBtn} type="submit">
                         <span>Send</span>

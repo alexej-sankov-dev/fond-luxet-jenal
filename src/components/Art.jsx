@@ -15,16 +15,16 @@ const Art = () => {
     dots: false,
     arrows: false,
     infinite: true,
-    slidesToShow: 1,
-    slidesToScroll: 1,
+    slidesToShow: 3,
+    slidesToScroll: 2,
     //speed: 3500,
     // useTransform: false,
     variableWidth: true,  
     
-    pauseOnHover: false,
+    pauseOnHover: true,
     autoplay: true,
-    speed: 1000,
-    autoplaySpeed: 3000,
+    speed: 2000,
+    autoplaySpeed: 3500,
     cssEase: "linear",
   };
 
@@ -36,6 +36,27 @@ const Art = () => {
         <div className={styles.sliderWrapper}>
             <div className={styles.artSlider}>
                 <Slider {...settings}>
+                    <div className={styles.sliderItem}>
+                        <img src={NFT1} alt='nft' />
+                    </div>
+                    <div className={styles.sliderItem}>
+                        <img src={NFT2} alt='nft' />
+                    </div>
+                    <div className={styles.sliderItem}>
+                        <img src={NFT3} alt='nft' />
+                    </div>
+                    <div className={styles.sliderItem}>
+                        <img src={NFT4} alt='nft' />
+                    </div>
+                    <div className={styles.sliderItem}>
+                        <img src={NFT5} alt='nft' />
+                    </div>
+                    <div className={styles.sliderItem}>
+                        <img src={NFT6} alt='nft' />
+                    </div>
+                    <div className={styles.sliderItem}>
+                        <img src={NFT7} alt='nft' />
+                    </div>
                     <div className={styles.sliderItem}>
                         <img src={NFT1} alt='nft' />
                     </div>
